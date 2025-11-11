@@ -1,0 +1,1 @@
+import{I as r}from"./index-bd42a384.js";function o(e=0,t=100){return r.get("/records/my",{params:{skip:e,limit:t}})}function n(e=0,t=100){return r.get("/records/all",{params:{skip:e,limit:t}})}function c(e){return r.get(`/records/student/${e}`)}function a(e){return r.get(`/records/${e}`)}export{a,c as b,o as c,n as g};

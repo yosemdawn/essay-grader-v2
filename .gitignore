@@ -41,7 +41,7 @@ desktop.ini
 
 # Node.js (前端)
 node_modules/
-dist/
+# dist/  # 注释掉，允许提交前端构建文件到Git
 .cache/
 .parcel-cache/
 
