@@ -20,7 +20,18 @@ from app.paths import (
 class Settings(BaseSettings):
     """应用配置类"""
 
-    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        env_file_encoding="utf-8",
+        extra="ignore"  # 忽略额外字段，避免.env中多余配置导致错误
+    )
+
+    # 应用基础配置
+    app_name: str = "AI作文批阅系统"
+    secret_key: str = "default-secret-key-change-me"
+    jwt_algorithm: str = "HS256"
+    access_token_expire_minutes: int = 1440
+    database_url: str = "sqlite:///./essay_grader.db"
 
     # 百度OCR API配置
     baidu_ocr_api_key: str = "VhjUcmJEFH0mfpYlYZTlvV66"
@@ -38,11 +49,18 @@ class Settings(BaseSettings):
 
     # 文件上传限制
     max_file_size: int = 10 * 1024 * 1024  # 10MB
+    max_upload_size: int = 10 * 1024 * 1024  # 别名，兼容.env配置
     allowed_extensions: str = "jpg,jpeg,png,bmp"
     max_files_per_batch: int = 50
 
+    # CORS配置
+    cors_origins: str = '["*"]'
+
     # 应用配置
     log_level: str = "INFO"
+    log_file: str = "logs/app.log"
+    log_max_bytes: int = 10485760
+    log_backup_count: int = 5
     debug: bool = False
     host: str = "0.0.0.0"
     port: int = 8000
