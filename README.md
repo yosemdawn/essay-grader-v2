@@ -4,7 +4,7 @@
 - 响应AI agent打通学生学习全链条的政策（应该是这么说的吧...起码做到了超越tooluse）
 - 这个程序还在开发中 我正在研究怎么新增一个资源共享区 作业记录区 欢迎各位佬提建议！
 - 本人文科出身 读的英语专业 对Programming是一窍不通的，有这个程序多亏了Vibe coding的出现！Linux，python，部署，AI(也就了解点AIGC相关) 都是上班偷摸自学的 只懂皮毛
-- 样板网站正在部署中 马上上线
+- 样板网站已初步部署 yosem.vip 欢迎访问 
 
 <img width="48" height="48" alt="11BD9860" src="https://github.com/user-attachments/assets/2f2cc079-e53d-4eb5-a2c1-1bace8568f34" />
 - 作者想说的话：我认为，人工智能赋能教学 不应该只局限于课堂！
