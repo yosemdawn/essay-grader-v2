@@ -1,0 +1,1 @@
+import{I as e}from"./index-f6886fcb.js";function r(t){return e.post("/users/batch-import",t)}function u(t){return e.put("/users/reset-password",t)}function n(t={}){return e.get("/users/list",{params:t})}function o(t){return e.delete(`/users/${t}`)}export{r as b,o as d,n as g,u as r};

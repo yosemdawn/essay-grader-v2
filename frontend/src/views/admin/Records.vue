@@ -319,7 +319,7 @@ const viewDetail = async (record: GradingRecord) => {
 onMounted(() => {
   // 从URL参数获取筛选条件
   const username = route.query.username as string
-  const recordId = route.query.id as string
+  const recordId = route.query.recordId || route.query.id as string
 
   if (username) {
     filterUsername.value = username
