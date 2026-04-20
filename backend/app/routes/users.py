@@ -3,7 +3,7 @@
 管理员专用：批量导入学生、密码管理、用户查询
 """
 import logging
-from typing import List, Optional
+from typing import Dict, List, Optional
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
@@ -83,24 +83,44 @@ async def batch_import_students(
     success_count = 0
     failed_count = 0
     details = []
-    
-    password_hash = get_password_hash(request.default_password)
-    
+
+    # 先做用户名去重，避免同一批次重复创建
+    student_by_username: Dict[str, StudentImportItem] = {}
+    duplicated_usernames = set()
     for student in request.students:
-        try:
-            # 检查用户名是否已存在
-            existing_user = db.query(User).filter(User.username == student.username).first()
-            if existing_user:
-                details.append({
-                    "username": student.username,
-                    "status": "skipped",
-                    "reason": "用户名已存在"
-                })
-                failed_count += 1
-                continue
-            
-            # 创建新学生
-            new_student = User(
+        if student.username in student_by_username:
+            duplicated_usernames.add(student.username)
+            continue
+        student_by_username[student.username] = student
+
+    for username in duplicated_usernames:
+        details.append({
+            "username": username,
+            "status": "skipped",
+            "reason": "请求中用户名重复"
+        })
+        failed_count += 1
+
+    unique_usernames = list(student_by_username.keys())
+    existing_users = db.query(User.username).filter(User.username.in_(unique_usernames)).all()
+    existing_usernames = {username for (username,) in existing_users}
+
+    password_hash = get_password_hash(request.default_password)
+    students_to_create = []
+    to_create_usernames = []
+
+    for username, student in student_by_username.items():
+        if username in existing_usernames:
+            details.append({
+                "username": username,
+                "status": "skipped",
+                "reason": "用户名已存在"
+            })
+            failed_count += 1
+            continue
+
+        students_to_create.append(
+            User(
                 username=student.username,
                 password_hash=password_hash,
                 role="student",
@@ -108,28 +128,37 @@ async def batch_import_students(
                 class_name=student.class_name,
                 is_active=True
             )
-            
-            db.add(new_student)
+        )
+        to_create_usernames.append(username)
+
+    try:
+        if students_to_create:
+            # 批量写入，减少每条记录一次 commit 的开销
+            db.add_all(students_to_create)
             db.commit()
-            db.refresh(new_student)
-            
+
+            # 重新查询获取ID，保证响应数据完整
+            created_users = db.query(User).filter(User.username.in_(to_create_usernames)).all()
+            created_user_map = {user.username: user.id for user in created_users}
+
+            for username in to_create_usernames:
+                details.append({
+                    "username": username,
+                    "status": "success",
+                    "user_id": created_user_map.get(username)
+                })
+                success_count += 1
+                logger.info(f"成功创建学生账号: {username} (ID: {created_user_map.get(username)})")
+    except Exception as e:
+        db.rollback()
+        logger.error(f"批量导入写入失败: {str(e)}")
+        for username in to_create_usernames:
             details.append({
-                "username": student.username,
-                "status": "success",
-                "user_id": new_student.id
-            })
-            success_count += 1
-            logger.info(f"成功创建学生账号: {student.username} (ID: {new_student.id})")
-            
-        except Exception as e:
-            db.rollback()
-            details.append({
-                "username": student.username,
+                "username": username,
                 "status": "failed",
-                "reason": str(e)
+                "reason": f"批量写入失败: {str(e)}"
             })
             failed_count += 1
-            logger.error(f"创建学生账号失败: {student.username} - {str(e)}")
     
     logger.info(f"批量导入完成: 成功 {success_count}, 失败 {failed_count}")
     
