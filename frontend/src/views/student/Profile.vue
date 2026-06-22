@@ -18,20 +18,20 @@
 
           <el-descriptions :column="1" border style="margin-top: 20px;">
             <el-descriptions-item label="用户名">
-              <el-tag type="primary">{{ userStore.user?.username }}</el-tag>
+              <el-tag type="primary">{{ userStore.userInfo?.username }}</el-tag>
             </el-descriptions-item>
             <el-descriptions-item label="角色">
               <el-tag type="success">👨‍🎓 学生</el-tag>
             </el-descriptions-item>
             <el-descriptions-item label="邮箱">
-              {{ userStore.user?.email || '未设置' }}
+              {{ userStore.userInfo?.email || '未设置' }}
             </el-descriptions-item>
             <el-descriptions-item label="班级">
-              {{ userStore.user?.class_name || '未设置' }}
+              {{ userStore.userInfo?.class_name || '未设置' }}
             </el-descriptions-item>
             <el-descriptions-item label="账号状态">
-              <el-tag :type="userStore.user?.is_active ? 'success' : 'danger'">
-                {{ userStore.user?.is_active ? '活跃' : '禁用' }}
+              <el-tag :type="userStore.userInfo?.is_active ? 'success' : 'danger'">
+                {{ userStore.userInfo?.is_active ? '活跃' : '禁用' }}
               </el-tag>
             </el-descriptions-item>
           </el-descriptions>
@@ -221,4 +221,3 @@ onMounted(() => {
   color: #303133;
 }
 </style>
-

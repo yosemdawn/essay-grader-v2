@@ -37,7 +37,7 @@
         </el-col>
         <el-col :span="6">
           <el-select v-model="filterActive" placeholder="筛选状态" clearable @change="loadStudents">
-            <el-option label="全部状态" :value="undefined" />
+            <el-option label="全部状态" value="" />
             <el-option label="活跃" :value="true" />
             <el-option label="禁用" :value="false" />
           </el-select>
@@ -102,7 +102,34 @@
             placeholder="每行一个学生，格式: 用户名,邮箱,班级&#10;例如:&#10;zhangsan,zhangsan@example.com,一班&#10;lisi,lisi@example.com,二班"
           />
         </el-form-item>
+        <el-alert
+          title="导入后会自动分配学生账号：用户名使用第一列，密码使用上方默认密码。作文图片里识别出的姓名需要和用户名一致。"
+          type="info"
+          show-icon
+          :closable="false"
+        />
       </el-form>
+      <el-table
+        v-if="importResultDetails.length"
+        :data="importResultDetails"
+        size="small"
+        style="margin-top: 16px;"
+      >
+        <el-table-column prop="username" label="用户名" />
+        <el-table-column prop="status" label="状态" width="100">
+          <template #default="{ row }">
+            <el-tag :type="row.status === 'success' ? 'success' : 'warning'">
+              {{ row.status === 'success' ? '已创建' : '未创建' }}
+            </el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column label="初始密码" width="120">
+          <template #default="{ row }">
+            {{ row.status === 'success' ? importForm.default_password : '-' }}
+          </template>
+        </el-table-column>
+        <el-table-column prop="reason" label="说明" />
+      </el-table>
       <template #footer>
         <el-button @click="importDialogVisible = false">取消</el-button>
         <el-button type="primary" :loading="importing" @click="handleImport">
@@ -155,10 +182,11 @@ const pageSize = ref(20)
 
 const searchKeyword = ref('')
 const filterClass = ref('')
-const filterActive = ref<boolean | undefined>(undefined)
+const filterActive = ref<boolean | ''>('')
 
 const importDialogVisible = ref(false)
 const resetPasswordDialogVisible = ref(false)
+const importResultDetails = ref<any[]>([])
 
 const importForm = ref({
   default_password: '123456',
@@ -188,7 +216,7 @@ const loadStudents = async () => {
       params.class_name = filterClass.value
     }
 
-    if (filterActive.value !== undefined) {
+    if (filterActive.value !== '') {
       params.is_active = filterActive.value
     }
 
@@ -217,6 +245,7 @@ const showImportDialog = () => {
     default_password: '123456',
     studentsText: ''
   }
+  importResultDetails.value = []
   importDialogVisible.value = true
 }
 
@@ -247,12 +276,12 @@ const handleImport = async () => {
       default_password: importForm.value.default_password
     })
 
-    ElMessage.success(`成功导入 ${res.created_count} 个学生`)
+    importResultDetails.value = res.details
+    ElMessage.success(`成功导入 ${res.success_count} 个学生，默认密码：${importForm.value.default_password}`)
     if (res.failed_count > 0) {
       ElMessage.warning(`失败 ${res.failed_count} 个`)
     }
 
-    importDialogVisible.value = false
     loadStudents()
   } catch (error: any) {
     ElMessage.error(error.message || '导入失败')
@@ -345,4 +374,3 @@ onMounted(() => {
   margin-bottom: 20px;
 }
 </style>
-

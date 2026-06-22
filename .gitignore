@@ -22,6 +22,7 @@ logs/
 # 上传文件
 uploads/
 data/uploads/
+data/students.json
 
 # 环境变量
 .env
@@ -29,6 +30,7 @@ data/uploads/
 
 # 配置文件（包含敏感信息）
 backend/config.json
+data/teacher_config.json
 
 # 备份文件
 data/backup/
@@ -53,6 +55,9 @@ node_modules/
 
 # 构建产物
 build/
+release/
+backend/dist/
+frontend/dist/
 *.egg-info/
 
 # 测试

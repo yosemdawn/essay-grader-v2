@@ -34,18 +34,18 @@ class Settings(BaseSettings):
     database_url: str = "sqlite:///./essay_grader.db"
 
     # 百度OCR API配置
-    baidu_ocr_api_key: str = "VhjUcmJEFH0mfpYlYZTlvV66"
-    baidu_ocr_secret_key: str = "U0eCELq0Dd6wytDarQ3W0F4bdEl7VsYl"
+    baidu_ocr_api_key: str = ""
+    baidu_ocr_secret_key: str = ""
 
     # 豆包LLM API配置
-    doubao_api_key: str = "41ffcba1-f089-46a9-bb10-819c3f61c811"
-    doubao_model_id: str = "doubao-seed-1-6-251015"
+    doubao_api_key: str = ""
+    doubao_model_id: str = "doubao-seed-2-0-lite-260428"
 
     # 邮件配置
     smtp_host: str = "smtp.qq.com"
     smtp_port: int = 465
-    smtp_username: str = "876331904@qq.com"
-    smtp_password: str = "kkkbyzcomakmbebf"
+    smtp_username: str = ""
+    smtp_password: str = ""
 
     # 文件上传限制
     max_file_size: int = 10 * 1024 * 1024  # 10MB

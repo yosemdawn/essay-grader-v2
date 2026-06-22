@@ -75,7 +75,7 @@
 <script setup lang="ts">
 import { ref, reactive } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
-import { ElMessage, FormInstance, FormRules } from 'element-plus'
+import { FormInstance, FormRules } from 'element-plus'
 import { useUserStore } from '@/stores/user'
 import type { LoginRequest } from '@/types'
 

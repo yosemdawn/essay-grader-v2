@@ -27,13 +27,21 @@ class Task:
         self.completed_count: int = 0
 
     def to_dict(self) -> Dict[str, Any]:
+        public_status = "processing" if self.status == TaskStatus.RUNNING else self.status
+        result = self.result if self.status == TaskStatus.COMPLETED else None
         return {
             "task_id": self.task_id,
-            "status": self.status,
+            "status": public_status,
             "progress": self.progress,
+            "message": self.current_step,
             "current_step": self.current_step,
-            "result": self.result if self.status == TaskStatus.COMPLETED else None,
+            "result": result,
+            "summary": result.get("summary") if isinstance(result, dict) else None,
+            "details": result.get("details") if isinstance(result, dict) else [],
+            "overall_analysis": result.get("overall_analysis") if isinstance(result, dict) else None,
             "error": str(self.error) if self.error else None,
+            "total": self.total_count,
+            "current": self.completed_count,
             "total_count": self.total_count,
             "completed_count": self.completed_count,
         }

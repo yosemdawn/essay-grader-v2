@@ -1,14 +1,15 @@
 import request from '@/utils/request'
-import type { User, StudentImportItem, BatchImportRequest } from '@/types'
+import type { User, BatchImportRequest } from '@/types'
 
 export interface BatchImportResponse {
-  success: boolean
-  message: string
-  created_count: number
+  success_count: number
   failed_count: number
-  failed_users: Array<{
+  total_count: number
+  details: Array<{
     username: string
-    reason: string
+    status: 'success' | 'skipped' | 'failed'
+    user_id?: number
+    reason?: string
   }>
 }
 
@@ -66,4 +67,3 @@ export function getUserDetail(userId: number) {
 export function deleteUser(userId: number) {
   return request.delete<{ success: boolean; message: string }>(`/users/${userId}`)
 }
-

@@ -4,7 +4,6 @@
  */
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import type { User, LoginRequest } from '@/types'
 import { login as loginApi, logout as logoutApi, getCurrentUser } from '@/api/auth'

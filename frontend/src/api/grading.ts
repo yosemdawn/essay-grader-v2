@@ -27,12 +27,51 @@ export interface TaskStatus {
   total: number
   current: number
   message: string
-  results?: Array<{
+  current_step?: string
+  summary?: {
+    total_essays: number
+    successful_grades: number
+    failed_grades: number
+    saved_to_db: number
+    email_sent?: number
+    average_score: number
+  }
+  details?: Array<{
     student_name: string
-    status: 'success' | 'failed'
-    record_id?: number
+    student_id?: number | null
+    essay_id?: number
+    grading_record_id?: number
+    saved_to_db: boolean
+    email_sent?: boolean
+    email_error?: string | null
+    grading_result?: {
+      score: number
+      advantages: any
+      disadvantages: any
+      suggestions: any[] | string
+      summary_comment: any
+      [key: string]: any
+    } | null
     error?: string
   }>
+  overall_analysis?: {
+    overview?: any
+    score_distribution?: any
+    common_strengths?: any[]
+    common_issues?: any[]
+    teaching_focus?: any[]
+    student_groups?: Array<{
+      group: string
+      students: string[]
+      reason: string
+    }>
+  } | null
+}
+
+export interface GradingSuggestion {
+        original_sentence: string
+        revised_sentence: string
+        reason: string
 }
 
 /**
@@ -76,4 +115,3 @@ export function processBatch(sessionId: string) {
 export function getTaskStatus(taskId: string) {
   return request.get<TaskStatus>(`/grading/status/${taskId}`)
 }
-

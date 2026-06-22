@@ -66,11 +66,11 @@ class GradingDatabaseService:
                 
                 # 3. 创建批阅记录
                 # 将 list/dict 类型的字段转换为 JSON 字符串
-                advantages = grading_result.get("advantages")
+                advantages = grading_result.get("advantages", grading_result.get("strengths"))
                 if isinstance(advantages, (list, dict)):
                     advantages = json.dumps(advantages, ensure_ascii=False)
 
-                disadvantages = grading_result.get("disadvantages")
+                disadvantages = grading_result.get("disadvantages", grading_result.get("weaknesses"))
                 if isinstance(disadvantages, (list, dict)):
                     disadvantages = json.dumps(disadvantages, ensure_ascii=False)
 
@@ -100,6 +100,7 @@ class GradingDatabaseService:
                 return {
                     "success": True,
                     "student_id": student.id,
+                    "student_email": student.email,
                     "essay_id": essay.id,
                     "grading_record_id": grading_record.id,
                     "score": grading_result.get("score")

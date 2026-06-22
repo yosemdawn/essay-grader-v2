@@ -30,8 +30,8 @@ export interface GradingRecord {
   id: number
   essay_id: number
   student_id?: number
-  student_name?: string
-  score?: number
+  student_name: string
+  score: number
   advantages?: string
   disadvantages?: string
   suggestions?: string
@@ -40,6 +40,12 @@ export interface GradingRecord {
   essay_text?: string
   requirements?: string
   submitted_at?: string
+  student?: {
+    id: number
+    username: string
+    email?: string
+    class_name?: string
+  }
 }
 
 export interface RecordDetail extends GradingRecord {

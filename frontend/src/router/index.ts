@@ -48,6 +48,12 @@ const routes: RouteRecordRaw[] = [
         component: () => import('@/views/admin/Records.vue'),
         meta: { title: '📝 批阅记录', requiresAdmin: true }
       },
+      {
+        path: '/admin/settings',
+        name: 'AdminSettings',
+        component: () => import('@/views/admin/Settings.vue'),
+        meta: { title: 'AI配置', requiresAdmin: true }
+      },
       // 学生路由
       {
         path: '/student/records',
@@ -78,7 +84,7 @@ const router = createRouter({
 })
 
 // 全局前置守卫
-router.beforeEach((to, from, next) => {
+router.beforeEach((to, _from, next) => {
   const userStore = useUserStore()
   const requiresAuth = to.matched.some(record => record.meta.requiresAuth)
   const requiresAdmin = to.matched.some(record => record.meta.requiresAdmin)

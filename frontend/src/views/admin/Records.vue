@@ -2,6 +2,13 @@
   <div class="records">
     <h2 class="page-title">📝 批阅记录</h2>
 
+    <div class="overview-grid">
+      <el-card v-for="item in overviewCards" :key="item.label" shadow="never" class="overview-card">
+        <span>{{ item.label }}</span>
+        <strong>{{ item.value }}</strong>
+      </el-card>
+    </div>
+
     <!-- 筛选栏 -->
     <el-card class="filter-card" shadow="hover">
       <el-row :gutter="20">
@@ -56,17 +63,17 @@
             </el-tag>
           </template>
         </el-table-column>
-        <el-table-column prop="advantages" label="优点" show-overflow-tooltip min-width="150">
+        <el-table-column prop="advantages" label="主要优点" show-overflow-tooltip min-width="180">
           <template #default="{ row }">
             {{ formatField(row.advantages) }}
           </template>
         </el-table-column>
-        <el-table-column prop="disadvantages" label="不足" show-overflow-tooltip min-width="150">
+        <el-table-column prop="disadvantages" label="主要问题" show-overflow-tooltip min-width="180">
           <template #default="{ row }">
             {{ formatField(row.disadvantages) }}
           </template>
         </el-table-column>
-        <el-table-column prop="suggestions" label="建议" show-overflow-tooltip min-width="150">
+        <el-table-column prop="suggestions" label="修改建议" show-overflow-tooltip min-width="140">
           <template #default="{ row }">
             {{ formatSuggestions(row.suggestions) }}
           </template>
@@ -138,7 +145,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { computed, ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { Search } from '@element-plus/icons-vue'
@@ -158,6 +165,21 @@ const filterStudentName = ref('')
 
 const detailDialogVisible = ref(false)
 const currentRecord = ref<GradingRecord | null>(null)
+
+const overviewCards = computed(() => {
+  const scored = records.value.filter(r => typeof r.score === 'number')
+  const average = scored.length
+    ? Math.round(scored.reduce((sum, r) => sum + Number(r.score || 0), 0) / scored.length)
+    : 0
+  const excellent = scored.filter(r => Number(r.score) >= 90).length
+  const needsHelp = scored.filter(r => Number(r.score) < 60).length
+  return [
+    { label: '当前记录', value: total.value },
+    { label: '当前页平均分', value: average || '-' },
+    { label: '90分以上', value: excellent },
+    { label: '需重点关注', value: needsHelp }
+  ]
+})
 
 const loadRecords = async () => {
   loading.value = true
@@ -358,5 +380,26 @@ onMounted(() => {
 .table-card {
   margin-bottom: 20px;
 }
-</style>
 
+.overview-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.overview-card {
+  border-radius: 8px;
+}
+
+.overview-card span {
+  display: block;
+  margin-bottom: 8px;
+  color: #909399;
+}
+
+.overview-card strong {
+  font-size: 26px;
+  color: #303133;
+}
+</style>

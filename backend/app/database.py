@@ -7,7 +7,8 @@ from contextlib import contextmanager
 from typing import Generator
 
 from app.paths import DATABASE_PATH_STR
-from app.models.database import Base
+from app.models.database import Base, User
+from app.utils.security import get_password_hash
 
 # 数据库URL
 DATABASE_URL = f"sqlite:///{DATABASE_PATH_STR}"
@@ -29,7 +30,43 @@ def init_db():
     初始化数据库，创建所有表
     """
     Base.metadata.create_all(bind=engine)
+    ensure_default_admin()
     print(f"[OK] 数据库初始化完成: {DATABASE_PATH_STR}")
+
+
+def ensure_default_admin():
+    db = SessionLocal()
+    try:
+        admin = db.query(User).filter(User.username == "admin").first()
+        if admin:
+            changed = False
+            if admin.role != "admin":
+                admin.role = "admin"
+                changed = True
+            if not admin.is_active:
+                admin.is_active = True
+                changed = True
+            if changed:
+                db.commit()
+            return
+
+        db.add(
+            User(
+                username="admin",
+                password_hash=get_password_hash("admin123"),
+                role="admin",
+                email=None,
+                class_name=None,
+                is_active=True,
+            )
+        )
+        db.commit()
+        print("[OK] Default teacher account created: admin / admin123")
+    except Exception:
+        db.rollback()
+        raise
+    finally:
+        db.close()
 
 
 def get_db() -> Generator[Session, None, None]:

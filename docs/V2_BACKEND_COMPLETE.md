@@ -1,201 +1,167 @@
-# 🎉 AI作文批阅系统 V2.0 后端开发完成
+﻿# 馃帀 AI浣滄枃鎵归槄绯荤粺 V2.0 鍚庣寮€鍙戝畬鎴?
+## 椤圭洰姒傝堪
 
-## 项目概述
+鎴愬姛灏咥I浣滄枃鎵归槄绯荤粺浠嶸1.0锛圝SON鏂囦欢瀛樺偍+閭欢閫氱煡锛夊崌绾у埌V2.0锛圫QLite鏁版嵁搴撳瓨鍌?Web鏌ヨ锛夛紝瀹炵幇浜嗗畬鏁寸殑鐢ㄦ埛璁よ瘉鍜屾潈闄愮鐞嗙郴缁熴€?
+---
 
-成功将AI作文批阅系统从V1.0（JSON文件存储+邮件通知）升级到V2.0（SQLite数据库存储+Web查询），实现了完整的用户认证和权限管理系统。
+## 鉁?宸插畬鎴愮殑鍏ぇ闃舵
+
+### 绗竴闃舵锛氭暟鎹簱璁捐涓庢ā鍨嬪垱寤?鉁?
+#### 鏁版嵁搴撹〃缁撴瀯
+1. **鐢ㄦ埛琛?(users)** - 63涓敤鎴凤紙1绠＄悊鍛?+ 62瀛︾敓锛?   - 鐢ㄦ埛鍚嶃€佸瘑鐮佸搱甯岋紙bcrypt锛夈€佽鑹层€侀偖绠便€佺彮绾?   - 鏀寔婵€娲荤姸鎬佹帶鍒?
+2. **浣滄枃琛?(essays)**
+   - 瀛︾敓ID澶栭敭銆佷綔鏂囧浘鐗囪矾寰勩€丱CR鏂囨湰銆佷綔鏂囪姹?   - 鎻愪氦鏃堕棿鎴?
+3. **鎵归槄璁板綍琛?(grading_records)**
+   - 浣滄枃ID澶栭敭銆佸垎鏁般€佷紭缂虹偣銆佸缓璁?   - 鎵归槄鏂瑰紡锛圓I/manual锛夈€佸畬鏁碕SON缁撴灉
+
+#### 鏍稿績鏂囦欢
+- [`backend/app/models/database.py`](../backend/app/models/database.py:1) - SQLAlchemy ORM妯″瀷
+- [`backend/app/database.py`](../backend/app/database.py:1) - 鏁版嵁搴撲細璇濈鐞?- [`backend/scripts/init_db.py`](../backend/scripts/init_db.py:1) - 鏁版嵁搴撳垵濮嬪寲鑴氭湰
 
 ---
 
-## ✅ 已完成的六大阶段
+### 绗簩闃舵锛欽WT璁よ瘉绯荤粺 鉁?
+#### 璁よ瘉鏈哄埗
+- **JWT Token**: HS256绠楁硶锛?灏忔椂鏈夋晥鏈?- **瀵嗙爜鍔犲瘑**: bcrypt鍝堝笇
+- **鏉冮檺鎺у埗**: 鍩轰簬瑙掕壊鐨勮闂帶鍒讹紙RBAC锛?
+#### 鏍稿績鏂囦欢
+- [`backend/app/utils/security.py`](../backend/app/utils/security.py:1) - JWT鍜屽瘑鐮佸伐鍏?- [`backend/app/utils/dependencies.py`](../backend/app/utils/dependencies.py:1) - 渚濊禆娉ㄥ叆鍑芥暟
+- [`backend/app/routes/auth.py`](../backend/app/routes/auth.py:1) - 璁よ瘉API璺敱
 
-### 第一阶段：数据库设计与模型创建 ✓
+#### API绔偣
+- `POST /api/auth/login` - 鐢ㄦ埛鐧诲綍
+- `POST /api/auth/logout` - 鐢ㄦ埛鐧诲嚭
+- `GET /api/auth/me` - 鑾峰彇褰撳墠鐢ㄦ埛淇℃伅
+- `GET /api/auth/verify` - 楠岃瘉token鏈夋晥鎬?
+---
 
-#### 数据库表结构
-1. **用户表 (users)** - 63个用户（1管理员 + 62学生）
-   - 用户名、密码哈希（bcrypt）、角色、邮箱、班级
-   - 支持激活状态控制
+### 绗笁闃舵锛氱敤鎴风鐞嗗姛鑳?鉁?
+#### 鏍稿績鍔熻兘
+- 鎵归噺瀵煎叆瀛︾敓璐﹀彿
+- 缁熶竴瀵嗙爜璁剧疆/閲嶇疆
+- 鐢ㄦ埛淇℃伅鏌ヨ鍜岀鐞?
+#### 鏍稿績鏂囦欢
+- [`backend/app/routes/users.py`](../backend/app/routes/users.py:1) - 鐢ㄦ埛绠＄悊API
 
-2. **作文表 (essays)**
-   - 学生ID外键、作文图片路径、OCR文本、作文要求
-   - 提交时间戳
-
-3. **批阅记录表 (grading_records)**
-   - 作文ID外键、分数、优缺点、建议
-   - 批阅方式（AI/manual）、完整JSON结果
-
-#### 核心文件
-- [`backend/app/models/database.py`](../backend/app/models/database.py:1) - SQLAlchemy ORM模型
-- [`backend/app/database.py`](../backend/app/database.py:1) - 数据库会话管理
-- [`backend/scripts/init_db.py`](../backend/scripts/init_db.py:1) - 数据库初始化脚本
+#### API绔偣锛堜粎绠＄悊鍛橈級
+- `POST /api/users/batch-import` - 鎵归噺瀵煎叆瀛︾敓
+- `PUT /api/users/reset-password` - 閲嶇疆瀵嗙爜
+- `GET /api/users/list` - 鑾峰彇鐢ㄦ埛鍒楄〃
+- `GET /api/users/{user_id}` - 鑾峰彇鐢ㄦ埛璇︽儏
+- `DELETE /api/users/{user_id}` - 鍒犻櫎鐢ㄦ埛
 
 ---
 
-### 第二阶段：JWT认证系统 ✓
+### 绗洓闃舵锛氭壒闃呰褰曞瓨鍌?鉁?
+#### 鏍稿績鏀瑰姩
+- 鉂?绉婚櫎閭欢鍙戦€佸姛鑳?- 鉁?鎵归槄缁撴灉淇濆瓨鍒版暟鎹簱
+- 鉁?瀹屾暣鐨勪綔鏂?鎵归槄璁板綍鍏宠仈
 
-#### 认证机制
-- **JWT Token**: HS256算法，2小时有效期
-- **密码加密**: bcrypt哈希
-- **权限控制**: 基于角色的访问控制（RBAC）
+#### 鏍稿績鏂囦欢
+- [`backend/app/services/grading_db.py`](../backend/app/services/grading_db.py:1) - 鎵归槄鏁版嵁搴撴湇鍔?- [`backend/app/services/workflow_engine.py`](../backend/app/services/workflow_engine.py:1) - 鏇存柊鐨勫伐浣滄祦寮曟搸
 
-#### 核心文件
-- [`backend/app/utils/security.py`](../backend/app/utils/security.py:1) - JWT和密码工具
-- [`backend/app/utils/dependencies.py`](../backend/app/utils/dependencies.py:1) - 依赖注入函数
-- [`backend/app/routes/auth.py`](../backend/app/routes/auth.py:1) - 认证API路由
-
-#### API端点
-- `POST /api/auth/login` - 用户登录
-- `POST /api/auth/logout` - 用户登出
-- `GET /api/auth/me` - 获取当前用户信息
-- `GET /api/auth/verify` - 验证token有效性
-
----
-
-### 第三阶段：用户管理功能 ✓
-
-#### 核心功能
-- 批量导入学生账号
-- 统一密码设置/重置
-- 用户信息查询和管理
-
-#### 核心文件
-- [`backend/app/routes/users.py`](../backend/app/routes/users.py:1) - 用户管理API
-
-#### API端点（仅管理员）
-- `POST /api/users/batch-import` - 批量导入学生
-- `PUT /api/users/reset-password` - 重置密码
-- `GET /api/users/list` - 获取用户列表
-- `GET /api/users/{user_id}` - 获取用户详情
-- `DELETE /api/users/{user_id}` - 删除用户
-
----
-
-### 第四阶段：批阅记录存储 ✓
-
-#### 核心改动
-- ❌ 移除邮件发送功能
-- ✅ 批阅结果保存到数据库
-- ✅ 完整的作文-批阅记录关联
-
-#### 核心文件
-- [`backend/app/services/grading_db.py`](../backend/app/services/grading_db.py:1) - 批阅数据库服务
-- [`backend/app/services/workflow_engine.py`](../backend/app/services/workflow_engine.py:1) - 更新的工作流引擎
-
-#### 工作流程
+#### 宸ヤ綔娴佺▼
 ```
-上传作文 → OCR识别 → LLM提取学生名 → LLM批阅 → 保存到数据库 → 返回结果
+涓婁紶浣滄枃 鈫?OCR璇嗗埆 鈫?LLM鎻愬彇瀛︾敓鍚?鈫?LLM鎵归槄 鈫?淇濆瓨鍒版暟鎹簱 鈫?杩斿洖缁撴灉
 ```
 
 ---
 
-### 第五阶段：查询API开发 ✓
+### 绗簲闃舵锛氭煡璇PI寮€鍙?鉁?
+#### 鏍稿績鍔熻兘
+- 瀛︾敓鏌ヨ鑷繁鐨勬壒闃呰褰?- 绠＄悊鍛樻煡璇㈡墍鏈?鎸囧畾瀛︾敓璁板綍
+- 鎵归槄璁板綍璇︽儏鏌ヨ
 
-#### 核心功能
-- 学生查询自己的批阅记录
-- 管理员查询所有/指定学生记录
-- 批阅记录详情查询
+#### 鏍稿績鏂囦欢
+- [`backend/app/routes/records.py`](../backend/app/routes/records.py:1) - 鎵归槄璁板綍鏌ヨAPI
 
-#### 核心文件
-- [`backend/app/routes/records.py`](../backend/app/routes/records.py:1) - 批阅记录查询API
-
-#### API端点
-- `GET /api/records/my` - 学生查看自己的记录（需student权限）
-- `GET /api/records/all` - 管理员查看所有记录（需admin权限）
-- `GET /api/records/student/{username}` - 管理员查看指定学生记录
-- `GET /api/records/{record_id}` - 查看记录详情（权限自动检查）
+#### API绔偣
+- `GET /api/records/my` - 瀛︾敓鏌ョ湅鑷繁鐨勮褰曪紙闇€student鏉冮檺锛?- `GET /api/records/all` - 绠＄悊鍛樻煡鐪嬫墍鏈夎褰曪紙闇€admin鏉冮檺锛?- `GET /api/records/student/{username}` - 绠＄悊鍛樻煡鐪嬫寚瀹氬鐢熻褰?- `GET /api/records/{record_id}` - 鏌ョ湅璁板綍璇︽儏锛堟潈闄愯嚜鍔ㄦ鏌ワ級
 
 ---
 
-### 第六阶段：数据迁移与测试 ✓
+### 绗叚闃舵锛氭暟鎹縼绉讳笌娴嬭瘯 鉁?
+#### 鏁版嵁杩佺Щ
+- 鎴愬姛杩佺Щ62涓鐢熶粠JSON鍒癝QLite
+- 鎵€鏈夊鐢熼粯璁ゅ瘑鐮侊細123456
 
-#### 数据迁移
-- 成功迁移62个学生从JSON到SQLite
-- 所有学生默认密码：123456
-
-#### 核心文件
-- [`backend/scripts/migrate_students.py`](../backend/scripts/migrate_students.py:1) - 数据迁移脚本
-- [`backend/scripts/test_apis.sh`](../backend/scripts/test_apis.sh:1) - API测试脚本
+#### 鏍稿績鏂囦欢
+- [`backend/scripts/migrate_students.py`](../backend/scripts/migrate_students.py:1) - 鏁版嵁杩佺Щ鑴氭湰
+- [`backend/scripts/test_apis.sh`](../backend/scripts/test_apis.sh:1) - API娴嬭瘯鑴氭湰
 
 ---
 
-## 📊 技术栈
+## 馃搳 鎶€鏈爤
 
-### 后端框架
-- **FastAPI** 0.104.1 - 高性能Web框架
-- **Uvicorn** 0.24.0 - ASGI服务器
-- **SQLAlchemy** 2.0.23 - ORM框架
-- **Alembic** 1.13.0 - 数据库迁移工具（已安装，未使用）
+### 鍚庣妗嗘灦
+- **FastAPI** 0.104.1 - 楂樻€ц兘Web妗嗘灦
+- **Uvicorn** 0.24.0 - ASGI鏈嶅姟鍣?- **SQLAlchemy** 2.0.23 - ORM妗嗘灦
+- **Alembic** 1.13.0 - 鏁版嵁搴撹縼绉诲伐鍏凤紙宸插畨瑁咃紝鏈娇鐢級
 
-### 安全认证
+### 瀹夊叏璁よ瘉
 - **python-jose** 3.3.0 - JWT token
-- **passlib** 1.7.4 - bcrypt密码加密
+- **passlib** 1.7.4 - bcrypt瀵嗙爜鍔犲瘑
 
-### AI服务
-- **百度OCR** - 文字识别
-- **豆包LLM** - AI批阅
+### AI鏈嶅姟
+- **鐧惧害OCR** - 鏂囧瓧璇嗗埆
+- **璞嗗寘LLM** - AI鎵归槄
 
 ---
 
-## 🚀 快速开始
-
-### 1. 安装依赖
+## 馃殌 蹇€熷紑濮?
+### 1. 瀹夎渚濊禆
 ```bash
 cd backend
 pip install -r requirements.txt
 ```
 
-### 2. 初始化数据库
+### 2. 鍒濆鍖栨暟鎹簱
 ```bash
 cd backend
 python3 scripts/init_db.py
 ```
 
-### 3. 迁移学生数据
+### 3. 杩佺Щ瀛︾敓鏁版嵁
 ```bash
 cd backend
 python3 scripts/migrate_students.py
 ```
 
-### 4. 启动服务器
-```bash
+### 4. 鍚姩鏈嶅姟鍣?```bash
 cd backend
 python3 main.py
 ```
 
-### 5. 测试API
+### 5. 娴嬭瘯API
 ```bash
 bash backend/scripts/test_apis.sh
 ```
 
-### 6. 访问API文档
-浏览器打开：http://localhost:8000/docs
+### 6. 璁块棶API鏂囨。
+娴忚鍣ㄦ墦寮€锛歨ttp://localhost:8000/docs
 
 ---
 
-## 🔑 默认账号
+## 馃攽 榛樿璐﹀彿
 
-### 管理员账号
-- 用户名：`admin`
-- 密码：`admin123`
-- 角色：admin
+### 绠＄悊鍛樿处鍙?- 鐢ㄦ埛鍚嶏細`admin`
+- 瀵嗙爜锛歚admin123`
+- 瑙掕壊锛歛dmin
 
-### 学生账号
-- 用户名：学生姓名（如：`张三`）
-- 密码：`123456`（统一默认密码）
-- 角色：student
-- 总数：62个学生
-
+### 瀛︾敓璐﹀彿
+- 鐢ㄦ埛鍚嶏細瀛︾敓濮撳悕锛堝锛歚寮犱笁`锛?- 瀵嗙爜锛歚123456`锛堢粺涓€榛樿瀵嗙爜锛?- 瑙掕壊锛歴tudent
+- 鎬绘暟锛?2涓鐢?
 ---
 
-## 📖 API使用示例
+## 馃摉 API浣跨敤绀轰緥
 
-### 1. 管理员登录
-```bash
+### 1. 绠＄悊鍛樼櫥褰?```bash
 curl -X POST http://localhost:8000/api/auth/login \
   -H "Content-Type: application/json" \
   -d '{"username":"admin","password":"admin123"}'
 ```
 
-**响应：**
+**鍝嶅簲锛?*
 ```json
 {
   "access_token": "eyJhbGc...",
@@ -208,53 +174,47 @@ curl -X POST http://localhost:8000/api/auth/login \
 }
 ```
 
-### 2. 学生登录
+### 2. 瀛︾敓鐧诲綍
 ```bash
 curl -X POST http://localhost:8000/api/auth/login \
   -H "Content-Type: application/json" \
-  -d '{"username":"张三","password":"123456"}'
+  -d '{"username":"寮犱笁","password":"123456"}'
 ```
 
-### 3. 管理员获取所有用户（需要token）
-```bash
+### 3. 绠＄悊鍛樿幏鍙栨墍鏈夌敤鎴凤紙闇€瑕乼oken锛?```bash
 TOKEN="your_admin_token_here"
 
 curl -X GET "http://localhost:8000/api/users/list?limit=10" \
   -H "Authorization: Bearer $TOKEN"
 ```
 
-### 4. 学生查看自己的批阅记录
-```bash
+### 4. 瀛︾敓鏌ョ湅鑷繁鐨勬壒闃呰褰?```bash
 STUDENT_TOKEN="your_student_token_here"
 
 curl -X GET "http://localhost:8000/api/records/my" \
   -H "Authorization: Bearer $STUDENT_TOKEN"
 ```
 
-### 5. 管理员查看所有批阅记录
-```bash
+### 5. 绠＄悊鍛樻煡鐪嬫墍鏈夋壒闃呰褰?```bash
 curl -X GET "http://localhost:8000/api/records/all?limit=20" \
   -H "Authorization: Bearer $ADMIN_TOKEN"
 ```
 
-### 6. 管理员批量导入学生
-```bash
+### 6. 绠＄悊鍛樻壒閲忓鍏ュ鐢?```bash
 curl -X POST "http://localhost:8000/api/users/batch-import" \
   -H "Authorization: Bearer $ADMIN_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
     "students": [
-      {"username": "测试学生1", "email": "test1@qq.com", "class_name": "一班"},
-      {"username": "测试学生2", "email": "test2@qq.com", "class_name": "一班"}
+      {"username": "娴嬭瘯瀛︾敓1", "email": "test1@qq.com", "class_name": "涓€鐝?},
+      {"username": "娴嬭瘯瀛︾敓2", "email": "test2@qq.com", "class_name": "涓€鐝?}
     ],
     "default_password": "123456"
   }'
 ```
 
-### 7. 管理员重置密码
-```bash
-# 重置所有学生密码
-curl -X PUT "http://localhost:8000/api/users/reset-password" \
+### 7. 绠＄悊鍛橀噸缃瘑鐮?```bash
+# 閲嶇疆鎵€鏈夊鐢熷瘑鐮?curl -X PUT "http://localhost:8000/api/users/reset-password" \
   -H "Authorization: Bearer $ADMIN_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
@@ -262,63 +222,56 @@ curl -X PUT "http://localhost:8000/api/users/reset-password" \
     "reset_all_students": true
   }'
 
-# 重置指定学生密码
+# 閲嶇疆鎸囧畾瀛︾敓瀵嗙爜
 curl -X PUT "http://localhost:8000/api/users/reset-password" \
   -H "Authorization: Bearer $ADMIN_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
-    "usernames": ["张三", "李四"],
+    "usernames": ["寮犱笁", "鏉庡洓"],
     "new_password": "newpass123"
   }'
 ```
 
 ---
 
-## 📁 新增文件结构
+## 馃搧 鏂板鏂囦欢缁撴瀯
 
 ```
 backend/
-├── app/
-│   ├── database.py              ✅ 数据库会话管理
-│   ├── models/
-│   │   └── database.py          ✅ SQLAlchemy ORM模型
-│   ├── routes/
-│   │   ├── auth.py              ✅ 认证API
-│   │   ├── users.py             ✅ 用户管理API
-│   │   └── records.py           ✅ 批阅记录查询API
-│   ├── services/
-│   │   ├── grading_db.py        ✅ 批阅数据库服务
-│   │   └── workflow_engine.py   🔄 已更新（去除邮件）
-│   └── utils/
-│       ├── security.py          ✅ JWT和密码工具
-│       └── dependencies.py      ✅ 依赖注入
-├── scripts/
-│   ├── init_db.py               ✅ 数据库初始化
-│   ├── migrate_students.py      ✅ 学生数据迁移
-│   └── test_apis.sh             ✅ API测试脚本
-└── requirements.txt             🔄 已更新
-
+鈹溾攢鈹€ app/
+鈹?  鈹溾攢鈹€ database.py              鉁?鏁版嵁搴撲細璇濈鐞?鈹?  鈹溾攢鈹€ models/
+鈹?  鈹?  鈹斺攢鈹€ database.py          鉁?SQLAlchemy ORM妯″瀷
+鈹?  鈹溾攢鈹€ routes/
+鈹?  鈹?  鈹溾攢鈹€ auth.py              鉁?璁よ瘉API
+鈹?  鈹?  鈹溾攢鈹€ users.py             鉁?鐢ㄦ埛绠＄悊API
+鈹?  鈹?  鈹斺攢鈹€ records.py           鉁?鎵归槄璁板綍鏌ヨAPI
+鈹?  鈹溾攢鈹€ services/
+鈹?  鈹?  鈹溾攢鈹€ grading_db.py        鉁?鎵归槄鏁版嵁搴撴湇鍔?鈹?  鈹?  鈹斺攢鈹€ workflow_engine.py   馃攧 宸叉洿鏂帮紙鍘婚櫎閭欢锛?鈹?  鈹斺攢鈹€ utils/
+鈹?      鈹溾攢鈹€ security.py          鉁?JWT鍜屽瘑鐮佸伐鍏?鈹?      鈹斺攢鈹€ dependencies.py      鉁?渚濊禆娉ㄥ叆
+鈹溾攢鈹€ scripts/
+鈹?  鈹溾攢鈹€ init_db.py               鉁?鏁版嵁搴撳垵濮嬪寲
+鈹?  鈹溾攢鈹€ migrate_students.py      鉁?瀛︾敓鏁版嵁杩佺Щ
+鈹?  鈹斺攢鈹€ test_apis.sh             鉁?API娴嬭瘯鑴氭湰
+鈹斺攢鈹€ requirements.txt             馃攧 宸叉洿鏂?
 data/
-└── database.db                  ✅ SQLite数据库文件
-```
+鈹斺攢鈹€ database.db                  鉁?SQLite鏁版嵁搴撴枃浠?```
 
 ---
 
-## 🔄 核心代码改动
+## 馃攧 鏍稿績浠ｇ爜鏀瑰姩
 
-### workflow_engine.py 主要变化
-**之前（V1.0）：**
+### workflow_engine.py 涓昏鍙樺寲
+**涔嬪墠锛圴1.0锛夛細**
 ```python
-# 查询学生邮箱
+# 鏌ヨ瀛︾敓閭
 student_email = self.student_db.get_email_by_name(student_name)
 
-# 发送邮件
-email_sent = await self.email_service.send_grading_email(...)
+# 鍙戦€侀偖浠?email_sent = await self.email_service.send_grading_email(...)
 ```
 
-**现在（V2.0）：**
+**鐜板湪锛圴2.0锛夛細**
 ```python
-# 保存到数据库
+# 淇濆瓨鍒版暟鎹簱
 save_result = self.grading_db.save_grading_result(
     student_name=student_name,
     essay_text=essay_text,
@@ -330,19 +283,15 @@ save_result = self.grading_db.save_grading_result(
 
 ---
 
-## 🧪 测试结果
+## 馃И 娴嬭瘯缁撴灉
 
-### 测试的API端点（8个）
-1. ✅ `/health` - 健康检查
-2. ✅ `POST /api/auth/login` - 管理员登录
-3. ✅ `POST /api/auth/login` - 学生登录
-4. ✅ `GET /api/users/list` - 获取用户列表（管理员）
-5. ✅ `GET /api/records/all` - 查看所有批阅记录（管理员）
-6. ✅ `GET /api/records/my` - 查看我的批阅记录（学生）
-7. ✅ `GET /api/records/student/{username}` - 查看指定学生记录（管理员）
-8. ✅ `GET /api/auth/verify` - Token验证
+### 娴嬭瘯鐨凙PI绔偣锛?涓級
+1. 鉁?`/health` - 鍋ュ悍妫€鏌?2. 鉁?`POST /api/auth/login` - 绠＄悊鍛樼櫥褰?3. 鉁?`POST /api/auth/login` - 瀛︾敓鐧诲綍
+4. 鉁?`GET /api/users/list` - 鑾峰彇鐢ㄦ埛鍒楄〃锛堢鐞嗗憳锛?5. 鉁?`GET /api/records/all` - 鏌ョ湅鎵€鏈夋壒闃呰褰曪紙绠＄悊鍛橈級
+6. 鉁?`GET /api/records/my` - 鏌ョ湅鎴戠殑鎵归槄璁板綍锛堝鐢燂級
+7. 鉁?`GET /api/records/student/{username}` - 鏌ョ湅鎸囧畾瀛︾敓璁板綍锛堢鐞嗗憳锛?8. 鉁?`GET /api/auth/verify` - Token楠岃瘉
 
-### 测试输出示例
+### 娴嬭瘯杈撳嚭绀轰緥
 ```json
 {
   "total": 63,
@@ -355,9 +304,9 @@ save_result = self.grading_db.save_grading_result(
     },
     {
       "id": 3,
-      "username": "张三",
+      "username": "寮犱笁",
       "role": "student",
-      "email": "1244803797@qq.com",
+      "email": "student@example.com",
       "is_active": true
     }
   ]
@@ -366,226 +315,181 @@ save_result = self.grading_db.save_grading_result(
 
 ---
 
-## 🔐 权限设计
+## 馃攼 鏉冮檺璁捐
 
-### 管理员权限（admin）
-- ✅ 批量导入/删除学生账号
-- ✅ 重置任意学生密码
-- ✅ 查看所有用户信息
-- ✅ 查看所有批阅记录
-- ✅ 查看任意学生的批阅记录详情
-- ✅ 发起批阅任务
+### 绠＄悊鍛樻潈闄愶紙admin锛?- 鉁?鎵归噺瀵煎叆/鍒犻櫎瀛︾敓璐﹀彿
+- 鉁?閲嶇疆浠绘剰瀛︾敓瀵嗙爜
+- 鉁?鏌ョ湅鎵€鏈夌敤鎴蜂俊鎭?- 鉁?鏌ョ湅鎵€鏈夋壒闃呰褰?- 鉁?鏌ョ湅浠绘剰瀛︾敓鐨勬壒闃呰褰曡鎯?- 鉁?鍙戣捣鎵归槄浠诲姟
 
-### 学生权限（student）
-- ✅ 登录系统
-- ✅ 查看自己的批阅记录列表
-- ✅ 查看自己的批阅记录详情
-- ❌ 不能查看其他学生的记录
-- ❌ 不能访问用户管理功能
+### 瀛︾敓鏉冮檺锛坰tudent锛?- 鉁?鐧诲綍绯荤粺
+- 鉁?鏌ョ湅鑷繁鐨勬壒闃呰褰曞垪琛?- 鉁?鏌ョ湅鑷繁鐨勬壒闃呰褰曡鎯?- 鉂?涓嶈兘鏌ョ湅鍏朵粬瀛︾敓鐨勮褰?- 鉂?涓嶈兘璁块棶鐢ㄦ埛绠＄悊鍔熻兘
 
 ---
 
-## 📝 完整API列表
+## 馃摑 瀹屾暣API鍒楄〃
 
-### 认证模块 (4个API)
-| 方法 | 路径 | 权限 | 说明 |
+### 璁よ瘉妯″潡 (4涓狝PI)
+| 鏂规硶 | 璺緞 | 鏉冮檺 | 璇存槑 |
 |-----|------|------|------|
-| POST | `/api/auth/login` | 公开 | 用户登录 |
-| POST | `/api/auth/logout` | 需登录 | 用户登出 |
-| GET | `/api/auth/me` | 需登录 | 获取当前用户信息 |
-| GET | `/api/auth/verify` | 需登录 | 验证token |
+| POST | `/api/auth/login` | 鍏紑 | 鐢ㄦ埛鐧诲綍 |
+| POST | `/api/auth/logout` | 闇€鐧诲綍 | 鐢ㄦ埛鐧诲嚭 |
+| GET | `/api/auth/me` | 闇€鐧诲綍 | 鑾峰彇褰撳墠鐢ㄦ埛淇℃伅 |
+| GET | `/api/auth/verify` | 闇€鐧诲綍 | 楠岃瘉token |
 
-### 用户管理 (5个API)
-| 方法 | 路径 | 权限 | 说明 |
+### 鐢ㄦ埛绠＄悊 (5涓狝PI)
+| 鏂规硶 | 璺緞 | 鏉冮檺 | 璇存槑 |
 |-----|------|------|------|
-| POST | `/api/users/batch-import` | 管理员 | 批量导入学生 |
-| PUT | `/api/users/reset-password` | 管理员 | 重置密码 |
-| GET | `/api/users/list` | 管理员 | 获取用户列表 |
-| GET | `/api/users/{user_id}` | 管理员 | 获取用户详情 |
-| DELETE | `/api/users/{user_id}` | 管理员 | 删除用户 |
+| POST | `/api/users/batch-import` | 绠＄悊鍛?| 鎵归噺瀵煎叆瀛︾敓 |
+| PUT | `/api/users/reset-password` | 绠＄悊鍛?| 閲嶇疆瀵嗙爜 |
+| GET | `/api/users/list` | 绠＄悊鍛?| 鑾峰彇鐢ㄦ埛鍒楄〃 |
+| GET | `/api/users/{user_id}` | 绠＄悊鍛?| 鑾峰彇鐢ㄦ埛璇︽儏 |
+| DELETE | `/api/users/{user_id}` | 绠＄悊鍛?| 鍒犻櫎鐢ㄦ埛 |
 
-### 批阅记录 (4个API)
-| 方法 | 路径 | 权限 | 说明 |
+### 鎵归槄璁板綍 (4涓狝PI)
+| 鏂规硶 | 璺緞 | 鏉冮檺 | 璇存槑 |
 |-----|------|------|------|
-| GET | `/api/records/my` | 学生 | 查看自己的记录 |
-| GET | `/api/records/all` | 管理员 | 查看所有记录 |
-| GET | `/api/records/student/{username}` | 管理员 | 查看指定学生记录 |
-| GET | `/api/records/{record_id}` | 需登录 | 查看记录详情 |
+| GET | `/api/records/my` | 瀛︾敓 | 鏌ョ湅鑷繁鐨勮褰?|
+| GET | `/api/records/all` | 绠＄悊鍛?| 鏌ョ湅鎵€鏈夎褰?|
+| GET | `/api/records/student/{username}` | 绠＄悊鍛?| 鏌ョ湅鎸囧畾瀛︾敓璁板綍 |
+| GET | `/api/records/{record_id}` | 闇€鐧诲綍 | 鏌ョ湅璁板綍璇︽儏 |
 
-### 批阅处理（保留原有API）
-| 方法 | 路径 | 权限 | 说明 |
+### 鎵归槄澶勭悊锛堜繚鐣欏師鏈堿PI锛?| 鏂规硶 | 璺緞 | 鏉冮檺 | 璇存槑 |
 |-----|------|------|------|
-| POST | `/api/grading/upload-prompt` | 公开 | 上传作文要求 |
-| POST | `/api/grading/upload-essays/{session_id}` | 公开 | 上传学生作文 |
-| POST | `/api/grading/process-batch/{session_id}` | 公开 | 开始批量处理 |
-| GET | `/api/grading/status/{task_id}` | 公开 | 查询任务状态 |
+| POST | `/api/grading/upload-prompt` | 鍏紑 | 涓婁紶浣滄枃瑕佹眰 |
+| POST | `/api/grading/upload-essays/{session_id}` | 鍏紑 | 涓婁紶瀛︾敓浣滄枃 |
+| POST | `/api/grading/process-batch/{session_id}` | 鍏紑 | 寮€濮嬫壒閲忓鐞?|
+| GET | `/api/grading/status/{task_id}` | 鍏紑 | 鏌ヨ浠诲姟鐘舵€?|
 
 ---
 
-## 🎯 V2.0核心特性
-
-### 与V1.0的主要区别
-
-| 特性 | V1.0 | V2.0 |
+## 馃幆 V2.0鏍稿績鐗规€?
+### 涓嶸1.0鐨勪富瑕佸尯鍒?
+| 鐗规€?| V1.0 | V2.0 |
 |------|------|------|
-| 数据存储 | JSON文件 | SQLite数据库 |
-| 结果通知 | 邮件发送 | Web查询 |
-| 用户系统 | 无 | JWT认证 |
-| 权限控制 | 无 | 角色权限 |
-| 数据持久化 | 文件 | 数据库事务 |
-| 学生查询 | 邮箱 | 登录Web查看 |
-| 管理功能 | 无 | 完整管理后台 |
+| 鏁版嵁瀛樺偍 | JSON鏂囦欢 | SQLite鏁版嵁搴?|
+| 缁撴灉閫氱煡 | 閭欢鍙戦€?| Web鏌ヨ |
+| 鐢ㄦ埛绯荤粺 | 鏃?| JWT璁よ瘉 |
+| 鏉冮檺鎺у埗 | 鏃?| 瑙掕壊鏉冮檺 |
+| 鏁版嵁鎸佷箙鍖?| 鏂囦欢 | 鏁版嵁搴撲簨鍔?|
+| 瀛︾敓鏌ヨ | 閭 | 鐧诲綍Web鏌ョ湅 |
+| 绠＄悊鍔熻兘 | 鏃?| 瀹屾暣绠＄悊鍚庡彴 |
 
 ---
 
-## 💾 数据库统计
-
-### 当前数据库状态
-- **文件大小**: 40KB
-- **用户总数**: 63个（1管理员 + 62学生）
-- **表总数**: 3个（users, essays, grading_records）
-
-### 数据库文件位置
-```
+## 馃捑 鏁版嵁搴撶粺璁?
+### 褰撳墠鏁版嵁搴撶姸鎬?- **鏂囦欢澶у皬**: 40KB
+- **鐢ㄦ埛鎬绘暟**: 63涓紙1绠＄悊鍛?+ 62瀛︾敓锛?- **琛ㄦ€绘暟**: 3涓紙users, essays, grading_records锛?
+### 鏁版嵁搴撴枃浠朵綅缃?```
 /home/admin/Downloads/essay-grader-v2/data/database.db
 ```
 
 ---
 
-## 🔧 配置说明
+## 馃敡 閰嶇疆璇存槑
 
-### 环境变量（.env）
-```ini
-# 数据库（自动配置）
-DATABASE_PATH=/home/admin/Downloads/essay-grader-v2/data/database.db
+### 鐜鍙橀噺锛?env锛?```ini
+# 鏁版嵁搴擄紙鑷姩閰嶇疆锛?DATABASE_PATH=/home/admin/Downloads/essay-grader-v2/data/database.db
 
-# JWT配置（在security.py中）
+# JWT閰嶇疆锛堝湪security.py涓級
 SECRET_KEY=your-secret-key-change-in-production-2024
 ALGORITHM=HS256
 ACCESS_TOKEN_EXPIRE_HOURS=2
 
-# 密码配置
+# 瀵嗙爜閰嶇疆
 DEFAULT_STUDENT_PASSWORD=123456
 DEFAULT_ADMIN_PASSWORD=admin123
 ```
 
 ---
 
-## 📈 性能优化建议（未来）
+## 馃搱 鎬ц兘浼樺寲寤鸿锛堟湭鏉ワ級
 
-1. **数据库优化**
-   - 为常用查询字段添加索引
-   - 考虑使用PostgreSQL替代SQLite（生产环境）
+1. **鏁版嵁搴撲紭鍖?*
+   - 涓哄父鐢ㄦ煡璇㈠瓧娈垫坊鍔犵储寮?   - 鑰冭檻浣跨敤PostgreSQL鏇夸唬SQLite锛堢敓浜х幆澧冿級
 
-2. **缓存机制**
-   - Redis缓存用户信息
-   - 批阅记录缓存
+2. **缂撳瓨鏈哄埗**
+   - Redis缂撳瓨鐢ㄦ埛淇℃伅
+   - 鎵归槄璁板綍缂撳瓨
 
-3. **异步优化**
-   - 批阅任务队列（Celery）
-   - WebSocket实时进度推送
-
-4. **安全增强**
-   - SECRET_KEY改用环境变量
-   - 添加请求速率限制
-   - 添加refresh token机制
+3. **寮傛浼樺寲**
+   - 鎵归槄浠诲姟闃熷垪锛圕elery锛?   - WebSocket瀹炴椂杩涘害鎺ㄩ€?
+4. **瀹夊叏澧炲己**
+   - SECRET_KEY鏀圭敤鐜鍙橀噺
+   - 娣诲姞璇锋眰閫熺巼闄愬埗
+   - 娣诲姞refresh token鏈哄埗
 
 ---
 
-## 🚧 已知限制
+## 馃毀 宸茬煡闄愬埗
 
-1. **会话管理**
-   - session_files使用内存存储，不支持多进程
-   - 建议使用Redis替代
+1. **浼氳瘽绠＄悊**
+   - session_files浣跨敤鍐呭瓨瀛樺偍锛屼笉鏀寔澶氳繘绋?   - 寤鸿浣跨敤Redis鏇夸唬
 
-2. **Token管理**
-   - JWT无状态，无法主动撤销
-   - 可考虑添加token黑名单机制
-
-3. **文件存储**
-   - 作文图片存储在本地文件系统
-   - 未来可迁移到OSS等云存储
+2. **Token绠＄悊**
+   - JWT鏃犵姸鎬侊紝鏃犳硶涓诲姩鎾ら攢
+   - 鍙€冭檻娣诲姞token榛戝悕鍗曟満鍒?
+3. **鏂囦欢瀛樺偍**
+   - 浣滄枃鍥剧墖瀛樺偍鍦ㄦ湰鍦版枃浠剁郴缁?   - 鏈潵鍙縼绉诲埌OSS绛変簯瀛樺偍
 
 ---
 
-## 🎓 下一步开发建议
+## 馃帗 涓嬩竴姝ュ紑鍙戝缓璁?
+### 鍓嶇寮€鍙戯紙Vue 3锛?1. 瀛︾敓绔〉闈?   - 鐧诲綍椤甸潰
+   - 鎵归槄璁板綍鍒楄〃
+   - 鎵归槄璇︽儏椤?
+2. 绠＄悊鍛樼椤甸潰
+   - 绠＄悊鍚庡彴
+   - 瀛︾敓绠＄悊
+   - 鎵归槄璁板綍绠＄悊
+   - 鎵归噺澶勭悊鐣岄潰
 
-### 前端开发（Vue 3）
-1. 学生端页面
-   - 登录页面
-   - 批阅记录列表
-   - 批阅详情页
-
-2. 管理员端页面
-   - 管理后台
-   - 学生管理
-   - 批阅记录管理
-   - 批量处理界面
-
-### 功能扩展
-1. 批阅记录导出（Excel/PDF）
-2. 数据统计和可视化
-3. 作文对比分析
-4. 历史记录趋势图
-
+### 鍔熻兘鎵╁睍
+1. 鎵归槄璁板綍瀵煎嚭锛圗xcel/PDF锛?2. 鏁版嵁缁熻鍜屽彲瑙嗗寲
+3. 浣滄枃瀵规瘮鍒嗘瀽
+4. 鍘嗗彶璁板綍瓒嬪娍鍥?
 ---
 
-## ✨ 项目亮点
+## 鉁?椤圭洰浜偣
 
-1. **完整的认证授权系统**：JWT + 基于角色的权限控制
-2. **数据库事务安全**：SQLAlchemy ORM + 自动回滚
-3. **代码模块化**：清晰的服务层、路由层、模型层分离
-4. **易于测试**：提供完整的测试脚本和API文档
-5. **平滑迁移**：自动将旧数据迁移到新系统
-
+1. **瀹屾暣鐨勮璇佹巿鏉冪郴缁?*锛欽WT + 鍩轰簬瑙掕壊鐨勬潈闄愭帶鍒?2. **鏁版嵁搴撲簨鍔″畨鍏?*锛歋QLAlchemy ORM + 鑷姩鍥炴粴
+3. **浠ｇ爜妯″潡鍖?*锛氭竻鏅扮殑鏈嶅姟灞傘€佽矾鐢卞眰銆佹ā鍨嬪眰鍒嗙
+4. **鏄撲簬娴嬭瘯**锛氭彁渚涘畬鏁寸殑娴嬭瘯鑴氭湰鍜孉PI鏂囨。
+5. **骞虫粦杩佺Щ**锛氳嚜鍔ㄥ皢鏃ф暟鎹縼绉诲埌鏂扮郴缁?
 ---
 
-## 📞 技术支持
-
-### API文档
+## 馃摓 鎶€鏈敮鎸?
+### API鏂囨。
 - Swagger UI: http://localhost:8000/docs
 - ReDoc: http://localhost:8000/redoc
 
-### 日志文件
-- 应用日志: `logs/app.log`
-- 服务器日志: `/tmp/server.log`
+### 鏃ュ織鏂囦欢
+- 搴旂敤鏃ュ織: `logs/app.log`
+- 鏈嶅姟鍣ㄦ棩蹇? `/tmp/server.log`
 
-### 数据库管理
-```bash
-# 重新初始化数据库（清空所有数据）
+### 鏁版嵁搴撶鐞?```bash
+# 閲嶆柊鍒濆鍖栨暟鎹簱锛堟竻绌烘墍鏈夋暟鎹級
 cd backend
 python3 scripts/init_db.py
 
-# 迁移学生数据
+# 杩佺Щ瀛︾敓鏁版嵁
 python3 scripts/migrate_students.py
 
-# 自定义默认密码
-python3 scripts/migrate_students.py --password "your_password"
+# 鑷畾涔夐粯璁ゅ瘑鐮?python3 scripts/migrate_students.py --password "your_password"
 ```
 
 ---
 
-## 🎊 开发总结
+## 馃帄 寮€鍙戞€荤粨
 
-### 开发时间线
-- 第一阶段：数据库设计 ✅
-- 第二阶段：JWT认证 ✅
-- 第三阶段：用户管理 ✅
-- 第四阶段：批阅存储 ✅
-- 第五阶段：查询API ✅
-- 第六阶段：测试迁移 ✅
+### 寮€鍙戞椂闂寸嚎
+- 绗竴闃舵锛氭暟鎹簱璁捐 鉁?- 绗簩闃舵锛欽WT璁よ瘉 鉁?- 绗笁闃舵锛氱敤鎴风鐞?鉁?- 绗洓闃舵锛氭壒闃呭瓨鍌?鉁?- 绗簲闃舵锛氭煡璇PI 鉁?- 绗叚闃舵锛氭祴璇曡縼绉?鉁?
+### 浠ｇ爜缁熻
+- 鏂板Python鏂囦欢锛?涓?- 鏂板Shell鑴氭湰锛?涓?- 淇敼鐜版湁鏂囦欢锛?涓?- 浠ｇ爜鎬昏鏁帮細~1500琛?
+### 鏍稿績鎴愬氨
+鉁?瀹屽叏鍘婚櫎閭欢渚濊禆  
+鉁?寤虹珛瀹屾暣鐨勬暟鎹簱鏋舵瀯  
+鉁?瀹炵幇JWT璁よ瘉鍜屾潈闄愮鐞? 
+鉁?杩佺Щ62涓鐢熸暟鎹? 
+鉁?鎵€鏈堿PI娴嬭瘯閫氳繃  
 
-### 代码统计
-- 新增Python文件：9个
-- 新增Shell脚本：1个
-- 修改现有文件：3个
-- 代码总行数：~1500行
-
-### 核心成就
-✅ 完全去除邮件依赖  
-✅ 建立完整的数据库架构  
-✅ 实现JWT认证和权限管理  
-✅ 迁移62个学生数据  
-✅ 所有API测试通过  
-
-**V2.0后端开发圆满完成！** 🚀
+**V2.0鍚庣寮€鍙戝渾婊″畬鎴愶紒** 馃殌

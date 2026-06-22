@@ -33,6 +33,10 @@
             <el-icon><Document /></el-icon>
             <template #title>📝 批阅记录</template>
           </el-menu-item>
+          <el-menu-item index="/admin/settings">
+            <el-icon><Setting /></el-icon>
+            <template #title>AI配置</template>
+          </el-menu-item>
         </template>
 
         <!-- 学生菜单 -->
@@ -107,6 +111,7 @@ import {
   Edit,
   User,
   Document,
+  Setting,
   Fold,
   Expand,
   ArrowDown,
@@ -242,4 +247,3 @@ const handleCommand = async (command: string) => {
   transform: translateX(30px);
 }
 </style>
-

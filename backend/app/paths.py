@@ -3,15 +3,24 @@
 所有文件路径都在这里定义，方便维护和修改
 """
 from pathlib import Path
-import os
+import sys
 
-# 获取项目根目录（backend的上一级目录）
-PROJECT_ROOT = Path(__file__).parent.parent.parent
+IS_FROZEN = getattr(sys, "frozen", False)
+
+if IS_FROZEN:
+    # In a packaged Windows build, writable data lives next to the exe.
+    PROJECT_ROOT = Path(sys.executable).resolve().parent
+    RESOURCE_ROOT = Path(getattr(sys, "_MEIPASS", PROJECT_ROOT))
+else:
+    # Source checkout: backend/app/paths.py -> project root.
+    PROJECT_ROOT = Path(__file__).parent.parent.parent
+    RESOURCE_ROOT = PROJECT_ROOT / "backend"
 
 # 数据目录
 DATA_DIR = PROJECT_ROOT / "data"
 STUDENTS_JSON = DATA_DIR / "students.json"
 DATABASE_PATH = DATA_DIR / "database.db"
+TEACHER_CONFIG_PATH = DATA_DIR / "teacher_config.json"
 
 # 上传目录
 UPLOADS_DIR = DATA_DIR / "uploads"
@@ -25,10 +34,11 @@ APP_LOG = LOGS_DIR / "app.log"
 # 备份目录
 BACKUP_DIR = DATA_DIR / "backup"
 
-# 静态文件和模板（在backend目录内）
-BACKEND_DIR = PROJECT_ROOT / "backend"
+# 静态文件和模板（源码中在backend目录内；打包后在资源目录内）
+BACKEND_DIR = RESOURCE_ROOT
 STATIC_DIR = BACKEND_DIR / "static"
 TEMPLATES_DIR = BACKEND_DIR / "templates"
+FRONTEND_DIST_DIR = RESOURCE_ROOT / "frontend_dist" if IS_FROZEN else PROJECT_ROOT / "frontend" / "dist"
 
 
 def ensure_directories():
@@ -68,6 +78,7 @@ UPLOADS_DIR_STR = str(UPLOADS_DIR)
 LOGS_DIR_STR = str(LOGS_DIR)
 STUDENTS_JSON_STR = str(STUDENTS_JSON)
 DATABASE_PATH_STR = str(DATABASE_PATH)
+TEACHER_CONFIG_PATH_STR = str(TEACHER_CONFIG_PATH)
 
 
 if __name__ == "__main__":

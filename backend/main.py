@@ -5,11 +5,12 @@
 import logging
 import uvicorn
 from contextlib import asynccontextmanager
+from pathlib import Path
 from fastapi import FastAPI, Request, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
-from fastapi.responses import HTMLResponse, JSONResponse
+from fastapi.responses import FileResponse, HTMLResponse, JSONResponse
 from fastapi.exceptions import RequestValidationError
 
 from app.config import settings
@@ -18,8 +19,9 @@ from app.routes.students import router as students_router
 from app.routes.auth import router as auth_router
 from app.routes.users import router as users_router
 from app.routes.records import router as records_router
+from app.routes.settings import router as settings_router
 from app.tasks.task_manager import task_manager
-from app.paths import ensure_directories, APP_LOG
+from app.paths import ensure_directories, APP_LOG, STATIC_DIR, TEMPLATES_DIR, FRONTEND_DIST_DIR
 from app.database import init_db
 
 # 确保目录存在
@@ -108,10 +110,11 @@ app.add_middleware(
 )
 
 # 静态文件服务
-app.mount("/static", StaticFiles(directory="static"), name="static")
+if STATIC_DIR.exists():
+    app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
 
 # 模板引擎
-templates = Jinja2Templates(directory="templates")
+templates = Jinja2Templates(directory=str(TEMPLATES_DIR))
 
 # 注册路由
 app.include_router(auth_router)
@@ -119,6 +122,7 @@ app.include_router(users_router)
 app.include_router(records_router)
 app.include_router(grading_router)
 app.include_router(students_router)
+app.include_router(settings_router)
 
 
 @app.exception_handler(HTTPException)
@@ -165,6 +169,9 @@ async def general_exception_handler(request: Request, exc: Exception):
 @app.get("/", response_class=HTMLResponse)
 async def home(request: Request):
     """主页"""
+    frontend_index = FRONTEND_DIST_DIR / "index.html"
+    if frontend_index.exists():
+        return FileResponse(frontend_index)
     return templates.TemplateResponse("index.html", {"request": request})
 
 
@@ -200,6 +207,33 @@ async def api_info():
             "health": "/health"
         }
     }
+
+
+if FRONTEND_DIST_DIR.exists():
+    assets_dir = FRONTEND_DIST_DIR / "assets"
+    if assets_dir.exists():
+        app.mount("/assets", StaticFiles(directory=str(assets_dir)), name="frontend-assets")
+
+
+@app.get("/{full_path:path}", response_class=HTMLResponse)
+async def frontend_spa_fallback(full_path: str, request: Request):
+    """Serve the Vue app for non-API routes in packaged/local production mode."""
+    if full_path.startswith(("api/", "docs", "redoc", "openapi.json", "static/")):
+        raise HTTPException(status_code=404, detail="Not found")
+
+    frontend_index = FRONTEND_DIST_DIR / "index.html"
+    if frontend_index.exists():
+        candidate = (FRONTEND_DIST_DIR / full_path).resolve()
+        try:
+            candidate.relative_to(FRONTEND_DIST_DIR.resolve())
+        except ValueError:
+            candidate = None
+
+        if candidate and candidate.is_file():
+            return FileResponse(candidate)
+        return FileResponse(frontend_index)
+
+    raise HTTPException(status_code=404, detail="Frontend build not found")
 
 
 if __name__ == "__main__":

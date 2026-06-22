@@ -5,6 +5,14 @@
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios'
 import { ElMessage } from 'element-plus'
 
+interface RequestClient {
+  <T = any>(config: AxiosRequestConfig): Promise<T>
+  get<T = any>(url: string, config?: AxiosRequestConfig): Promise<T>
+  post<T = any>(url: string, data?: any, config?: AxiosRequestConfig): Promise<T>
+  put<T = any>(url: string, data?: any, config?: AxiosRequestConfig): Promise<T>
+  delete<T = any>(url: string, config?: AxiosRequestConfig): Promise<T>
+}
+
 // 创建axios实例
 const request: AxiosInstance = axios.create({
   baseURL: '/api',  // Vite代理会转发到 http://localhost:8000/api
@@ -73,4 +81,4 @@ request.interceptors.response.use(
   }
 )
 
-export default request
+export default request as unknown as RequestClient
